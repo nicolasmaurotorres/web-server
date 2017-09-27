@@ -1,0 +1,21 @@
+{
+  "name": "server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www localhost 3000"
+  },
+  "dependencies": {
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "cors": "^2.8.4",
+    "debug": "~2.6.3",
+    "express": "~4.15.2",
+    "jstransformer": "^1.0.0",
+    "mongoose": "^4.11.13",
+    "morgan": "~1.8.1",
+    "pug": "^2.0.0-rc.4",
+    "serve-favicon": "~2.4.2",
+    "validator": "^8.2.0"
+  }
+}
