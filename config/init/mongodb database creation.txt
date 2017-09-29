@@ -1,0 +1,40 @@
+COMO SETEAR AMBIENTE DE MONGODB
+	* Iniciamos mongodb sin control de acceso
+		mongod --port 27017 --dbpath /data/db1 
+		
+	* Nos conectamos a la instancia de mongo
+		mongo --port 27017
+		
+	* Creamos el usuario arministrador (no es necesario si ya esta creado el usuario administrador)
+		use admin
+		db.createUser({
+			user: "admin",
+			pwd: "123456789***",
+			roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+		})
+		
+	* Reiniciamos la instancia de mongodb
+		mongod --auth --port 27017 --dbpath /data/db1
+		
+	* Nos conectamos con el usuario administrador
+		mongo --port 27017 -u "admin" -p "123456789***" --authenticationDatabase "admin"
+		
+	* Creamos la base de datos y creamos el usuario administrador para esa base
+		use webshop
+		db.createUser({
+			user: "adminWebshop",
+			pwd: "123456",
+			roles: [ { role: "dbOwner", db: "webshop" } ]
+		})
+		
+	* Logueamos con el usuario creado
+		mongo --port 27017 -u "adminWebshop" -p "123456" --authenticationDatabase "webshop"
+
+CREAMOS LAS COLECCIONES
+use webshop
+db.createCollection("users")
+db.users.createIndex({username:1,email:1},{unique:true})
+
+		
+		
+		

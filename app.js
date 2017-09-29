@@ -8,7 +8,7 @@ var cors = require('cors');
 var mongoose = require('mongoose');
 var index = require('./routes/index');
 var users = require('./routes/users');
-
+var config = require('./config/config');
 var app = express();
 
 // view engine setup
@@ -50,30 +50,42 @@ app.use(function(err, req, res, next) {
   //console.log('listening port 3000');
 //});
 
-gracefulShutdown = function(msg, callback) {
-  mongoose.connection.close(function() {
+//mongoose events
+mongoose.connection.on('connected', function () {
+  console.log('Mongoose connected to ' + config.dbUri);
+});
+mongoose.connection.on('error', function (err) {
+  console.log('Mongoose connection error: ' + err);
+});
+mongoose.connection.on('disconnected', function () {
+  console.log('Mongoose disconnected');
+});
+
+
+
+// CAPTURE APP TERMINATION / RESTART EVENTS - To be called when process is restarted or terminated
+gracefulShutdown = function (msg, callback) {
+  mongoose.connection.close(function () {
       console.log('Mongoose disconnected through ' + msg);
       callback();
   });
 };
 // For nodemon restarts
-process.once('SIGUSR2', function() {
-  gracefulShutdown('nodemon restart', function() {
+process.once('SIGUSR2', function () {
+  gracefulShutdown('nodemon restart', function () {
       process.kill(process.pid, 'SIGUSR2');
   });
 });
 // For app termination
-process.on('SIGINT', function() {
-  gracefulShutdown('app termination', function() {
+process.on('SIGINT', function () {
+  gracefulShutdown('app termination', function () {
       process.exit(0);
   });
 });
 // For Heroku app termination
-process.on('SIGTERM', function() {
-  gracefulShutdown('Heroku app termination', function() {
+process.on('SIGTERM', function () {
+  gracefulShutdown('Heroku app termination', function () {
       process.exit(0);
   });
 });
-
-
 module.exports = app;
