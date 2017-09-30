@@ -12,6 +12,7 @@
     "cors": "^2.8.4",
     "debug": "~2.6.3",
     "express": "~4.15.2",
+    "jsonwebtoken": "^8.0.1",
     "jstransformer": "^1.0.0",
     "mongoose": "^4.11.13",
     "morgan": "~1.8.1",

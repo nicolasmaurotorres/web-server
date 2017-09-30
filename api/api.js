@@ -4,6 +4,7 @@ var bcrypt = require('bcrypt');
 var validator = require('validator');
 var isEmpty = require('lodash/isEmpty');
 var config = require('../config/config');
+var jwt = require('jsonwebtoken');
 mongoose.connect(config.dbUri, { useMongoClient: true });
 var models = require('./models')(mongoose);
 
@@ -51,13 +52,36 @@ module.exports.checkUniqueUserOrEmail = function(req,res){
     
     models.Users.find({$or:[ {'username': _identifier}, {'email': _identifier}]} , function(err,user) {
         var errors = {};
-        if (err || user.length > 0) {     
+        debugger;
+        if (user.length > 0) {     
             errors.repeated = 'ya hay un usuario con dicho';
             res.status(200).json({errors});
         } else {
         res.status(200).json({success:false});
         }
     });
+}
+
+module.exports.authenticateUser = function (req,res){
+    debugger;
+    const { identifier, password } = req.body;   
+    models.Users.findOne({$or:[ {'username': identifier}, {'email': identifier}]}, function(err,user){
+        var errors = {};
+        debugger;
+        if (user) {     
+            if (bcrypt.compareSync(password, user.get('password'))){
+               const token = jwt.sign({
+                   id: user.get('id'),
+                   username:user.get('username')
+               },config.jwtSecret); 
+               res.json({token});
+            } else {
+                res.status(401).json({errors: {form : 'invalid credentials'}});
+            }
+        } else {
+            res.status(401).json({errors: {form : 'invalid credentials'}});
+        }
+    })
 }
 
 
