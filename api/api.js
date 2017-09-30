@@ -23,7 +23,7 @@ module.exports.createUser = function (req, res) {
             email: _email,
             timezone: _timezone
         });
-       
+        
         models.Users.findOne({email : _email}, function(err0, res0){
             if (res0){
                 // el email es repitido, lo agrego a los errores, checkeo si el nombre es repitido
@@ -45,6 +45,22 @@ module.exports.createUser = function (req, res) {
         });
     };
 }
+
+module.exports.checkUniqueUserOrEmail = function(req,res){
+    const _identifier = req.params.identifier;
+    
+    models.Users.find({$or:[ {'username': _identifier}, {'email': _identifier}]} , function(err,user) {
+        var errors = {};
+        if (err || user.length > 0) {     
+            errors.repeated = 'ya hay un usuario con dicho';
+            res.status(200).json({errors});
+        } else {
+        res.status(200).json({success:false});
+        }
+    });
+}
+
+
 
 function validateInput (data) {
     let errors = {};
