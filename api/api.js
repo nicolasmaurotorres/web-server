@@ -9,7 +9,7 @@ var models = require('./models')(mongoose);
 
 module.exports.createUser = function (req, res) {
     const { errors, isValid } = validateInput(req.body);
-    
+     
     if (!isValid) {
         res.status(400).json(errors);
     } else {
@@ -23,12 +23,25 @@ module.exports.createUser = function (req, res) {
             email: _email,
             timezone: _timezone
         });
-        newUser.save(function (error) {
-            if (error) {
-                res.send(error);
-            } else {
-                res.status(200).json({ success: true });
+       
+        models.Users.findOne({email : _email}, function(err0, res0){
+            if (res0){
+                // el email es repitido, lo agrego a los errores, checkeo si el nombre es repitido
+                errors.email = 'email repetido';
             }
+            models.Users.findOne({username : _username}, function(err1,res1){
+                if (res1){
+                    //nombre de usuario repetido, lo agrego a los errores
+                    errors.username = 'nombre de usuario repetido';
+                }
+                newUser.save(function (err2) {
+                    if (err2) {
+                        res.status(400).json(errors);
+                    } else {
+                        res.status(200).json({ success: true });
+                    }
+                });
+            });
         });
     };
 }

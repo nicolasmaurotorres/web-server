@@ -61,8 +61,6 @@ mongoose.connection.on('disconnected', function () {
   console.log('Mongoose disconnected');
 });
 
-
-
 // CAPTURE APP TERMINATION / RESTART EVENTS - To be called when process is restarted or terminated
 gracefulShutdown = function (msg, callback) {
   mongoose.connection.close(function () {
