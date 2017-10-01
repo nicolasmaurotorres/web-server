@@ -5,7 +5,6 @@ var validator = require('validator');
 var isEmpty = require('lodash/isEmpty');
 var config = require('../config/config');
 var jwt = require('jsonwebtoken');
-mongoose.connect(config.dbUri, { useMongoClient: true });
 var models = require('./models')(mongoose);
 
 module.exports.createUser = function (req, res) {
@@ -49,7 +48,7 @@ module.exports.createUser = function (req, res) {
 
 module.exports.checkUniqueUserOrEmail = function(req,res){
     const _identifier = req.params.identifier;
-    
+    debugger;
     models.Users.find({$or:[ {'username': _identifier}, {'email': _identifier}]} , function(err,user) {
         var errors = {};
         debugger;
@@ -82,6 +81,44 @@ module.exports.authenticateUser = function (req,res){
             res.status(401).json({errors: {form : 'invalid credentials'}});
         }
     })
+}
+
+module.exports.createEvent = function(req,res){
+    // MOCK data
+    res.status(201).json({ success : true });
+}
+
+module.exports.authenticate = function (req, res, next) {
+    debugger;
+    const authorizationHeader = req.headers['authorization'];
+    let token;
+
+    if (authorizationHeader) {
+        token = authorizationHeader.split(' ')[1];
+    }
+
+    if (token) {
+        jwt.verify(token, config.jwtSecret, function (err, decoded) {
+            if (err) {
+                res.status(401).json({ error: 'failed to authenticated' });
+            } else {
+                debugger;
+                
+                models.Users.findOne({ username : decoded.username },function (err,user) {
+                    debugger;
+                    if (!user){
+                        res.status(404).json({error : 'no such user'});
+                    }
+                    req.currentUser = {username: user.username, timezone: user.timezone};
+                    next();
+                });    
+            }
+        });
+    } else {
+        res.status(403).json({
+            error: 'no token provided'
+        });
+    }
 }
 
 
